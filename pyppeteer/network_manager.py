@@ -174,17 +174,11 @@ class NetworkManager(BaseEventEmitter):
         })
 
     async def _onRequestWillBeSent(self, event: Dict) -> None:
-        print("_onRequestWillBeSent")
         if self._protocolRequestInterceptionEnabled:
             requestId = event.get('requestId')
             interceptionId = self._requestIdToInterceptionId.get(requestId)  # noqa: E501
-
-            if event['request']['url'] == "https://chromeskillup.herokuapp.com/getjson":
-                print("found")
             if interceptionId:
-                print("if interceptionId: before onRequest")
                 self._onRequest(event, interceptionId)
-                print("if interceptionId: after onRequest")
                 self._requestIdToInterceptionId.pop(requestId)  # noqa: E501
             else:
                 self._requestIdToRequestWillBeSentEvent[requestId] = event  # noqa: E501
@@ -192,7 +186,6 @@ class NetworkManager(BaseEventEmitter):
         self._onRequest(event, None)
 
     async def _onRequestPaused(self, event):
-        print("_onRequestPaused")
         if not self._userRequestInterceptionEnabled and self._protocolRequestInterceptionEnabled:
             await self._send('Fetch.continueRequest', {'requestId': event.get('requestId')})
 
@@ -200,9 +193,7 @@ class NetworkManager(BaseEventEmitter):
         interceptionId = event['requestId']
         requestWillBeSentEvent = self._requestIdToRequestWillBeSentEvent.get(requestId)
         if requestId and requestWillBeSentEvent:
-            print("Before on request")
             self._onRequest(requestWillBeSentEvent, interceptionId)  # noqa: E501
-            print("After on request")
             self._requestIdToRequestWillBeSentEvent.pop(requestId)
         else:
             self._requestIdToInterceptionId[requestId] = interceptionId  # noqa: E501
