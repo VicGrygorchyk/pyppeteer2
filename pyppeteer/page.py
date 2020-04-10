@@ -321,6 +321,13 @@ class Page(BaseEventEmitter):
         """  # noqa: E501
         return await self._networkManager.setRequestInterception(value)
 
+    async def setRequestInterceptionForPattern(self, value: bool, pattern) -> None:
+        """Enable/disable request interception.
+        :param value: True for interceptor to be enabled else False
+        :param pattern: Regex to match a Request to intercept
+        """  # noqa: E501
+        return await self._networkManager.setRequestInterception(value, pattern)
+
     async def setOfflineMode(self, enabled: bool) -> None:
         """Set offline mode enable/disable."""
         await self._networkManager.setOfflineMode(enabled)
