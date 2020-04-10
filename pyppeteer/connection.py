@@ -8,7 +8,7 @@ import json
 import logging
 from typing import Awaitable, Callable, Dict, Union, TYPE_CHECKING
 
-from pyee import EventEmitter
+from pyee import BaseEventEmitter
 import websockets
 
 from pyppeteer.errors import NetworkError
@@ -21,7 +21,7 @@ logger_connection = logging.getLogger(__name__ + '.Connection')
 logger_session = logging.getLogger(__name__ + '.CDPSession')
 
 
-class Connection(EventEmitter):
+class Connection(BaseEventEmitter):
     """Connection management class."""
 
     def __init__(self, url: str, loop: asyncio.AbstractEventLoop,
@@ -41,7 +41,7 @@ class Connection(EventEmitter):
         self.connection: CDPSession
         self._connected = False
         self._ws = websockets.client.connect(
-            self._url, max_size=None, loop=self._loop)
+            self._url, max_size=None, loop=self._loop, ping_interval=None, ping_timeout=None)
         self._recv_fut = self._loop.create_task(self._recv_loop())
         self._closeCallback: Optional[Callable[[], None]] = None
 
@@ -181,7 +181,7 @@ class Connection(EventEmitter):
         return session
 
 
-class CDPSession(EventEmitter):
+class CDPSession(BaseEventEmitter):
     """Chrome Devtools Protocol Session.
 
     The :class:`CDPSession` instances are used to talk raw Chrome Devtools
@@ -191,7 +191,7 @@ class CDPSession(EventEmitter):
     * protocol events can be subscribed to with :meth:`on` method.
 
     Documentation on DevTools Protocol can be found
-    `here <https://chromedevtools.github.io/devtools-protocol/>`_.
+    `here <https://chromedevtools.github.io/devtools-protocol/>`__.
     """
 
     def __init__(self, connection: Union[Connection, 'CDPSession'],
