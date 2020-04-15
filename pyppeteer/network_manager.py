@@ -493,7 +493,7 @@ class Request(object):
         ``response`` is a dictionary which can have the following fields:
 
         * ``responseCode`` (int): Response status code, defaults to 200.
-        * ``responseHeaders`` (dict): Optional response headers.
+        * ``headers`` (dict): Optional response headers.
         * ``body`` (str|bytes): Optional response body.
         * ``responsePhrase`` (string): A textual representation of responseCode.
         If absent, a standard phrase matching responseCode is used.
@@ -520,20 +520,10 @@ class Request(object):
         if responseBody and 'content-length' not in responseHeaders:
             responseHeaders['content-length'] = len(responseBody)
 
-        statusCode = response.get('status', 200)
-        statusText = statusTexts.get(statusCode)
-        statusLine = f'HTTP/1.1 {statusCode} {statusText}'
+        statusCode = response.get('responseCode', 200)
+        statusText = statusTexts.get(str(statusCode))
 
-        CRLF = '\r\n'
-        text = statusLine + CRLF
-        for header in responseHeaders:
-            text = f'{text}{header}: {responseHeaders[header]}{CRLF}'
-        text = text + CRLF
-        responseBuffer = text.encode('utf-8')
-        if responseBody:
-            responseBuffer = responseBuffer + responseBody
-
-        rawResponse = base64.b64encode(responseBuffer).decode('ascii')
+        rawResponse = base64.b64encode(responseBody).decode('ascii')
         try:
             await self._client.send('Fetch.fulfillRequest', {
                 'requestId': self._interceptionId,
