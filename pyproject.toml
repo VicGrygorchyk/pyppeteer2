@@ -23,19 +23,19 @@ classifiers = [
         'Programming Language :: Python :: 3.8',
     ]
 packages = [
-    { include = "pyppeteer" },
+    { include = "pyppeteer" }
 ]
 include = [
     "README.md",
     "LICENSE",
     "CHANGES.md",
-    "tests/*",
-    "docs/*",
     "Makefile",
 ]
 exclude = [
     '*/__pycache__',
     '*/*.py[co]',
+    "tests/*",
+    "docs/*",
 ]
 
 [tool.poetry.urls]
